@@ -1,18 +1,18 @@
 import streamlit as st
-import openai
 import os
+from openai import OpenAI
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI()
 
 st.title("🧠 AI営業アシスタント")
 st.write("商談履歴を入力すると、次のアクションを提案します。")
 
-client = st.text_input("顧客名")
+client_name = st.text_input("顧客名")
 summary = st.text_area("商談の要点")
 date = st.date_input("商談日付")
 
 if st.button("提案を生成"):
-    if not all([client, summary, date]):
+    if not all([client_name, summary, date]):
         st.warning("すべての項目を入力してください。")
     else:
         with st.spinner("AIが分析中..."):
@@ -24,7 +24,7 @@ if st.button("提案を生成"):
 2. その理由（Reason）
 3. 関係強化のヒント（Relationship Tips）
 
-顧客名: {client}
+顧客名: {client_name}
 商談日: {date}
 商談要約: {summary}
 
@@ -34,15 +34,18 @@ if st.button("提案を生成"):
 - Relationship Tips:
 """
 
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "あなたは有能なB2B営業アシスタントです。"},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.5,
-                max_tokens=500
-            )
-            result = response["choices"][0]["message"]["content"]
-            st.success("提案が生成されました！")
-            st.markdown(result)
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4",
+                    messages=[
+                        {"role": "system", "content": "あなたは有能なB2B営業アシスタントです。"},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.5,
+                    max_tokens=500
+                )
+                result = response.choices[0].message.content
+                st.success("提案が生成されました！")
+                st.markdown(result)
+            except Exception as e:
+                st.error(f"エラーが発生しました: {e}")
