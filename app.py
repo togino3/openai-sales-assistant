@@ -36,7 +36,7 @@ if st.button("提案を生成"):
 
             try:
                 response = client.chat.completions.create(
-                    model="gpt-4",
+                    model="gpt-3.5-turbo",  # ← ここを gpt-4 から変更
                     messages=[
                         {"role": "system", "content": "あなたは有能なB2B営業アシスタントです。"},
                         {"role": "user", "content": prompt}
